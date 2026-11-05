@@ -504,9 +504,20 @@ async function removeAccount(id) {
 function showAccountMenu(id) {
   const i = config.accounts.findIndex((a) => a.id === id);
   if (i < 0) return;
+  // Útil para el enlace de inicio de sesión que llega por correo: se copia y se abre en esta cuenta.
+  const clip = clipboard.readText().trim();
+  const clipUrl = isAllowedUrl(clip) ? clip : null;
   Menu.buildFromTemplate([
     { label: 'Editar nombre, color e inicial…', click: () => sidebar.webContents.send('edit:open', { mode: 'edit', id }) },
     { label: 'Recargar', click: () => views.get(id)?.webContents.reload() },
+    {
+      label: 'Abrir enlace del portapapeles en esta cuenta',
+      enabled: Boolean(clipUrl),
+      click: () => {
+        views.get(id)?.webContents.loadURL(clipUrl);
+        setActive(id);
+      },
+    },
     { type: 'separator' },
     { label: 'Mover arriba', enabled: i > 0, click: () => moveAccount(id, -1) },
     { label: 'Mover abajo', enabled: i < config.accounts.length - 1, click: () => moveAccount(id, 1) },
