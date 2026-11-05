@@ -113,7 +113,7 @@ git push origin v1.0.0
 - La barra lateral solo se comunica con el proceso principal mediante una API mínima expuesta con `contextBridge` (`preload.js`). El proceso principal ignora los mensajes que no vienen de la barra.
 - Política de seguridad de contenido (CSP) estricta en la interfaz local.
 - Los permisos web (micrófono, notificaciones, portapapeles) solo se conceden a claude.ai.
-- El User-Agent se presenta como Chrome estándar, sin la marca «Electron», porque algunos proveedores de inicio de sesión bloquean los navegadores integrados.
+- El User-Agent se presenta como Chrome estándar, sin la marca «Electron». Solo en las páginas de inicio de sesión de Google se presenta como Firefox (sin las cabeceras `Sec-CH-UA`), porque Google bloquea los navegadores integrados basados en Chromium.
 
 ## Estructura
 

@@ -205,6 +205,34 @@ function cleanUserAgent() {
   return `Mozilla/5.0 (${platform}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${chromeMajor}.0.0.0 Safari/537.36`;
 }
 
+// Google detecta los navegadores integrados basados en Chromium aunque se limpie el User-Agent
+// ("No se ha podido iniciar sesión"). En sus páginas de login nos presentamos como Firefox,
+// que no envía las cabeceras Sec-CH-UA, y así Google acepta el inicio de sesión.
+const GOOGLE_AUTH_HOSTS = ['accounts.google.com', 'accounts.youtube.com'];
+
+function firefoxUserAgent() {
+  const platform = IS_WIN
+    ? 'Windows NT 10.0; Win64; x64'
+    : IS_MAC
+      ? 'Macintosh; Intel Mac OS X 10.15'
+      : 'X11; Linux x86_64';
+  return `Mozilla/5.0 (${platform}; rv:156.0) Gecko/20100101 Firefox/156.0`;
+}
+
+function isGoogleAuthUrl(url) {
+  try {
+    return hostMatches(new URL(url).hostname, GOOGLE_AUTH_HOSTS);
+  } catch {
+    return false;
+  }
+}
+
+// Cambia la identidad de la pestaña según la página de destino (afecta a navigator.userAgent).
+function syncUserAgent(wc, url) {
+  const wanted = isGoogleAuthUrl(url) ? firefoxUserAgent() : app.userAgentFallback;
+  if (wc.getUserAgent() !== wanted) wc.setUserAgent(wanted);
+}
+
 const preparedSessions = new Set();
 
 function prepareSession(partition) {
@@ -216,6 +244,18 @@ function prepareSession(partition) {
     callback(ALLOWED_PERMISSIONS.has(permission) && isClaudeOrigin(details.requestingUrl || wc.getURL()));
   });
   ses.setPermissionCheckHandler((_wc, permission, origin) => ALLOWED_PERMISSIONS.has(permission) && isClaudeOrigin(origin));
+
+  // Cabeceras HTTP de las peticiones al login de Google: User-Agent de Firefox y sin Sec-CH-UA.
+  ses.webRequest.onBeforeSendHeaders(
+    { urls: GOOGLE_AUTH_HOSTS.flatMap((h) => [`https://${h}/*`, `https://*.${h}/*`]) },
+    ({ requestHeaders }, callback) => {
+      requestHeaders['User-Agent'] = firefoxUserAgent();
+      for (const key of Object.keys(requestHeaders)) {
+        if (/^sec-ch-ua/i.test(key)) delete requestHeaders[key];
+      }
+      callback({ requestHeaders });
+    }
+  );
 }
 
 function windowOpenOptions(partition) {
@@ -231,6 +271,10 @@ function windowOpenOptions(partition) {
 
 // Reglas comunes a las vistas de cuenta y a sus ventanas emergentes (login de Google, etc.).
 function hardenContents(wc, partition) {
+  wc.on('did-start-navigation', (details) => {
+    if (details.isMainFrame) syncUserAgent(wc, details.url);
+  });
+
   wc.on('will-navigate', (event) => {
     if (!isAllowedUrl(event.url)) {
       event.preventDefault();
@@ -246,7 +290,10 @@ function hardenContents(wc, partition) {
     return { action: 'deny' };
   });
 
-  wc.on('did-create-window', (child) => hardenContents(child.webContents, partition));
+  wc.on('did-create-window', (child, { url }) => {
+    syncUserAgent(child.webContents, url);
+    hardenContents(child.webContents, partition);
+  });
   wc.on('context-menu', (_e, params) => showEditContextMenu(wc, params));
 }
 
