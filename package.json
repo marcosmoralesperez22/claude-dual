@@ -1,17 +1,76 @@
 {
   "name": "claude-dual",
+  "productName": "Claude Dual",
   "version": "1.0.0",
   "description": "Varias cuentas de claude.ai abiertas a la vez, cada una con su sesión aislada. Proyecto no oficial.",
   "main": "main.js",
   "author": "Marcos Morales",
   "license": "MIT",
   "private": true,
+  "homepage": "https://github.com/marcosmoralesperez22/claude-dual",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marcosmoralesperez22/claude-dual.git"
+  },
   "scripts": {
     "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:linux": "electron-builder --linux --publish never",
     "icons": "node scripts/make-icons.js"
   },
   "devDependencies": {
     "electron": "^45.2.3",
     "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.marcosmorales.claudedual",
+    "productName": "Claude Dual",
+    "artifactName": "Claude-Dual-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Claude Dual",
+      "artifactName": "Claude-Dual-Setup-${version}.${ext}"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "icon": "assets/icon.png",
+      "maintainer": "Marcos Morales"
+    }
   }
 }
