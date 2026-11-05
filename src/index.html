@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:"
+    />
+    <title>Claude Dual</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav class="bar" aria-label="Cuentas">
+      <ul id="accounts" class="accounts"></ul>
+
+      <div class="tools">
+        <button id="add" class="tool" type="button" title="Añadir cuenta" aria-label="Añadir cuenta">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+        <button id="reload" class="tool" type="button" aria-label="Recargar">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 12a8 8 0 1 1-2.34-5.66" />
+            <path d="M20 4v5h-5" />
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <div id="overlay" class="overlay" hidden>
+      <form id="editor" class="card" autocomplete="off" novalidate>
+        <header class="card-head">
+          <div id="preview" class="avatar avatar-lg" aria-hidden="true"></div>
+          <div>
+            <h1 id="editor-title">Nueva cuenta</h1>
+            <p class="hint">Solo es una etiqueta para reconocerla. Inicias sesión dentro de claude.ai.</p>
+          </div>
+        </header>
+
+        <label class="field">
+          <span>Nombre</span>
+          <input id="f-name" name="name" type="text" maxlength="40" placeholder="Ej.: Trabajo" required />
+        </label>
+
+        <label class="field field-short">
+          <span>Inicial o icono</span>
+          <input id="f-initial" name="initial" type="text" maxlength="16" placeholder="T" />
+        </label>
+
+        <fieldset class="field">
+          <legend>Color</legend>
+          <div id="swatches" class="swatches"></div>
+        </fieldset>
+
+        <footer class="card-actions">
+          <button id="delete" class="btn btn-danger" type="button">Eliminar…</button>
+          <span class="spacer"></span>
+          <button id="cancel" class="btn" type="button">Cancelar</button>
+          <button id="save" class="btn btn-primary" type="submit">Guardar</button>
+        </footer>
+      </form>
+    </div>
+
+    <script src="renderer.js"></script>
+  </body>
+</html>

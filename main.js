@@ -37,6 +37,7 @@ const BASE_ALLOWED_HOSTS = [
   'anthropic.com',
   'accounts.google.com',
   'accounts.youtube.com',
+  'appleid.apple.com',
 ];
 
 // Permisos web que se conceden solo a claude.ai (micrófono para el modo voz, portapapeles, avisos).
@@ -89,12 +90,16 @@ function defaultConfig() {
   };
 }
 
+// Divide en caracteres visibles (un emoji compuesto cuenta como uno).
+const segmenter = new Intl.Segmenter();
+const graphemes = (s) => [...segmenter.segment(s)].map((x) => x.segment);
+
 function cleanAccountFields(data, fallback) {
   const src = data && typeof data === 'object' ? data : {};
   const name = String(src.name ?? '').trim().slice(0, 40) || fallback.name;
   const color = /^#[0-9a-f]{6}$/i.test(String(src.color)) ? String(src.color).toLowerCase() : fallback.color;
-  const initialRaw = [...String(src.initial ?? '').trim()].slice(0, 2).join('');
-  const initial = (initialRaw || [...name][0] || '?').toUpperCase();
+  const initialRaw = graphemes(String(src.initial ?? '').trim()).slice(0, 2).join('');
+  const initial = (initialRaw || graphemes(name)[0] || '?').toUpperCase();
   return { name, color, initial };
 }
 

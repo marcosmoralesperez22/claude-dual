@@ -1,0 +1,373 @@
+:root {
+  --bar-w: 72px;
+  --bar-bg: #16141f;
+  --bar-fg: #c9c6d6;
+  --bar-muted: #7d7a8c;
+  --bar-hover: #24212f;
+  --card-bg: #211e2c;
+  --card-fg: #ecebf2;
+  --card-border: #343041;
+  --input-bg: #16141f;
+  --primary: #6c7cf0;
+  --danger: #e5566b;
+  --active: #6c7cf0;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  /* Transparente: cuando se abre el editor, esta vista cubre toda la ventana. */
+  background: transparent;
+  font: 13px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--bar-fg);
+  user-select: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------- Barra lateral ---------- */
+
+.bar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--bar-w);
+  display: flex;
+  flex-direction: column;
+  background: var(--bar-bg);
+  /* Franja del color de la cuenta activa, siempre visible junto al contenido. */
+  border-right: 3px solid var(--active);
+  transition: border-color 0.15s;
+}
+
+.accounts {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 6px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.account {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.account::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 4px;
+  height: 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--c);
+  transform: translateY(-50%);
+  transition: height 0.15s;
+}
+
+.account:hover::before {
+  height: 14px;
+}
+
+.account.active::before {
+  height: 34px;
+}
+
+.account:focus-visible {
+  outline: none;
+}
+
+.account:focus-visible .avatar {
+  box-shadow: 0 0 0 2px var(--bar-bg), 0 0 0 4px #fff;
+}
+
+.avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--c);
+  color: var(--on-c, #fff);
+  font-weight: 650;
+  font-size: 17px;
+  opacity: 0.6;
+  transition: border-radius 0.15s, opacity 0.15s;
+}
+
+.account:hover .avatar,
+.account.active .avatar {
+  opacity: 1;
+}
+
+.account.active .avatar {
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px var(--bar-bg), 0 0 0 4px var(--c);
+}
+
+.badge {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--bar-bg);
+  color: var(--bar-muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 17px;
+  text-align: center;
+}
+
+.name {
+  max-width: 62px;
+  overflow: hidden;
+  font-size: 10.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--bar-muted);
+}
+
+.account.active .name {
+  color: var(--card-fg);
+  font-weight: 600;
+}
+
+.tools {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0 12px;
+}
+
+.tool {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--bar-muted);
+  cursor: pointer;
+}
+
+.tool:hover,
+.tool:focus-visible {
+  background: var(--bar-hover);
+  color: var(--card-fg);
+  outline: none;
+}
+
+.tool svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Editor de cuenta ---------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px 16px 16px calc(var(--bar-w) + 16px);
+  background: rgba(10, 9, 15, 0.6);
+  user-select: text;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.card {
+  width: min(420px, 100%);
+  padding: 20px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  background: var(--card-bg);
+  color: var(--card-fg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.card-head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.card-head h1 {
+  margin: 0 0 2px;
+  font-size: 16px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--bar-muted);
+  font-size: 12px;
+}
+
+.avatar-lg {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  font-size: 21px;
+  opacity: 1;
+}
+
+.field {
+  display: block;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+}
+
+.field > span,
+.field > legend {
+  display: block;
+  margin-bottom: 6px;
+  padding: 0;
+  color: var(--bar-fg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field input[type="text"] {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--card-fg);
+  font: inherit;
+  font-size: 14px;
+}
+
+.field input[type="text"]:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.field-short input[type="text"] {
+  width: 90px;
+  text-align: center;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--c);
+  cursor: pointer;
+}
+
+.swatch[aria-checked="true"] {
+  box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--card-fg);
+}
+
+.swatch:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+.swatch-custom {
+  position: relative;
+  overflow: hidden;
+  background: conic-gradient(#e5566b, #e5b84a, #3fb68b, #4ab3e5, #6c7cf0, #c86bd6, #e5566b);
+}
+
+.swatch-custom input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.btn {
+  padding: 8px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--card-fg);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--bar-hover);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #5a6ae0;
+}
+
+.btn-danger {
+  border-color: transparent;
+  color: var(--danger);
+}
+
+.btn-danger[hidden] {
+  display: none;
+}
