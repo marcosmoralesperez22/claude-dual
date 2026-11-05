@@ -1,0 +1,17 @@
+{
+  "name": "claude-dual",
+  "version": "1.0.0",
+  "description": "Varias cuentas de claude.ai abiertas a la vez, cada una con su sesión aislada. Proyecto no oficial.",
+  "main": "main.js",
+  "author": "Marcos Morales",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "icons": "node scripts/make-icons.js"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  }
+}
